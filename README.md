@@ -1,7 +1,7 @@
 # WinPE-WireGuard
 Script to apply IP address of bare metal device and start WireGuard tunnel. The purpose is to use the existing IP and WireGuard tunnel information of the physical, or virtual, device to perform a bare metal restore. 
 
-Need to download and place wg.exe, wintun.dll, and wireguard.exe into the BareMetal folder. Build, or open, a WinPE ISO and place the Baremetal folder in the mount. 
+Need to extract wg.exe and wireguard.exe from the official Windows installer (using an archive tool) and download wintun.dll (version 0.14.1). Place all three files into the BareMetal folder. Build, or open, a WinPE ISO and place the BareMetal folder in the mount.
 
 My example, after creating the mount point for WinPE:
 Dism /Mount-Image /ImageFile:"C:\WinPE_Fresh\media\sources\boot.wim" /index:1 /MountDir:"C:\WinPE_Fresh\mount" 
