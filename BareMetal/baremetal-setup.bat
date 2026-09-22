@@ -38,6 +38,20 @@ echo   Tunnel Endpoint : %TUNNEL%
 echo   Backup Target   : %BACKUP%
 echo ========================================================
 echo.
+
+:: Automatically scan and dynamically load any hardware drivers in Drivers\
+if exist "%CD%\Drivers" (
+    echo Scanning and dynamically loading supplementary drivers from Drivers\...
+    for /r "%CD%\Drivers" %%i in (*.inf) do (
+        echo   [+] Loading: %%~nxi
+        drvload "%%i" >nul 2>&1
+    )
+    echo   Driver initialization complete.
+    :: Brief 2-second pause for Windows PnP device manager to bind adapter
+    ping 127.0.0.1 -n 3 >nul
+    echo.
+)
+
 echo Available network interfaces on this physical system:
 netsh interface ipv4 show interface
 echo.
@@ -122,14 +136,14 @@ ping 127.0.0.1 -n 6 >nul
 
 if defined TUNNEL (
     echo.
-    echo Testing ping to WireGuard Concentrator [%TUNNEL%]...
-    ping "%TUNNEL%"
+    echo Testing ping to WireGuard Concentrator [!TUNNEL!]...
+    ping "!TUNNEL!"
 )
 
 if defined BACKUP (
     echo.
-    echo Testing connection across WireGuard to Backup Network [%BACKUP%]...
-    ping "%BACKUP%"
+    echo Testing connection across WireGuard to Backup Network [!BACKUP!]...
+    ping "!BACKUP!"
 )
 
 :end
