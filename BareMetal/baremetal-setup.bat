@@ -122,13 +122,13 @@ ping 127.0.0.1 -n 6 >nul
 
 if defined TUNNEL (
     echo.
-    echo Testing ping to WireGuard Concentrator (%TUNNEL%)...
+    echo Testing ping to WireGuard Concentrator [%TUNNEL%]...
     ping "%TUNNEL%"
 )
 
 if defined BACKUP (
     echo.
-    echo Testing connection across WireGuard to Backup Network (%BACKUP%)...
+    echo Testing connection across WireGuard to Backup Network [%BACKUP%]...
     ping "%BACKUP%"
 )
 
