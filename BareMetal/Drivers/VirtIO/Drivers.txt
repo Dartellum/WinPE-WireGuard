@@ -1,0 +1,6 @@
+Place extracted Proxmox / KVM VirtIO drivers here:
+    - netkvm.inf
+    - netkvm.sys
+    - netkvm.cat
+    - netkvmp.exe (required helper executable)
+    - vioscsi.inf / vioscsi.sys (optional storage)
