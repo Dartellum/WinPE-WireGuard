@@ -1,0 +1,5 @@
+Place extracted VMware drivers here:
+    - vmxnet3.inf (from VMware Tools Win8/ folder - NDIS 6.30)
+    - vmxnet3.sys
+    - vmxnet3.cat
+    - pvscsi.inf / pvscsi.sys (optional storage)
