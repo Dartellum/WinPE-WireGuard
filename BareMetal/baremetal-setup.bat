@@ -18,6 +18,8 @@ for /f "tokens=1,2 delims==" %%a in ('type "%CONFFILE%"') do (
     if "!KEY!"=="Adapter" set "ADAPTER=!VAL!"
     if "!KEY!"=="Default_Mask" set "DEF_MASK=!VAL!"
     if "!KEY!"=="Default_Gateway" set "DEF_GW=!VAL!"
+    if "!KEY!"=="Default_DNS" set "DEF_DNS=!VAL!"
+    if "!KEY!"=="DNS" if not defined DEF_DNS set "DEF_DNS=!VAL!"
     if "!KEY!"=="Mask" if not defined DEF_MASK set "DEF_MASK=!VAL!"
     if "!KEY!"=="Gateway" if not defined DEF_GW set "DEF_GW=!VAL!"
     if "!KEY!"=="Tunnel" set "TUNNEL=!VAL!"
@@ -34,6 +36,7 @@ echo Base Network Parameters loaded from %CONFFILE%:
 echo   Default Adapter : %ADAPTER%
 echo   Default Mask    : %DEF_MASK%
 echo   Default Gateway : %DEF_GW%
+if defined DEF_DNS if not "%DEF_DNS%"=="" echo   Default DNS     : %DEF_DNS%
 echo   Tunnel Endpoint : %TUNNEL%
 echo   Backup Target   : %BACKUP%
 echo ========================================================
@@ -95,11 +98,13 @@ set "CHOSEN_NAME=!SRV%SEL%_Name!"
 set "IP=!SRV%SEL%_IP!"
 set "CHOSEN_MASK=!SRV%SEL%_Mask!"
 set "CHOSEN_GW=!SRV%SEL%_Gateway!"
+set "CHOSEN_DNS=!SRV%SEL%_DNS!"
 set "CHOSEN_CONF=!SRV%SEL%_Config!"
 
-:: Fallback to defaults if mask or gateway were omitted for this server
+:: Fallback to defaults if mask, gateway, or DNS were omitted for this server
 if "%CHOSEN_MASK%"=="" set "CHOSEN_MASK=%DEF_MASK%"
 if "%CHOSEN_GW%"=="" set "CHOSEN_GW=%DEF_GW%"
+if "%CHOSEN_DNS%"=="" set "CHOSEN_DNS=%DEF_DNS%"
 
 :APPLY
 echo.
@@ -109,8 +114,16 @@ echo   Adapter         : %ADAPTER%
 echo   Static IP       : %IP%
 echo   Subnet Mask     : %CHOSEN_MASK%
 echo   Default Gateway : %CHOSEN_GW%
+if defined CHOSEN_DNS if not "%CHOSEN_DNS%"=="" (
+    echo   DNS Server      : %CHOSEN_DNS%
+)
 echo ========================================================
 netsh interface ipv4 set address name="%ADAPTER%" static %IP% %CHOSEN_MASK% %CHOSEN_GW%
+
+if defined CHOSEN_DNS if not "%CHOSEN_DNS%"=="" (
+    echo Setting DNS server...
+    netsh interface ipv4 set dns name="%ADAPTER%" static %CHOSEN_DNS% validate=no
+)
 
 echo.
 echo Verifying Physical IP configuration:
@@ -148,6 +161,24 @@ if defined BACKUP (
 
 :end
 echo.
-echo Configuration sequence completed.
-pause
+echo ===============================================================================
+echo  Bare-Metal Recovery Setup Completed Successfully!
+echo ===============================================================================
+echo  WireGuard Profile : %CHOSEN_CONF%
+echo  Physical Interface: %ADAPTER% (%IP%)
+echo.
+echo  Available Options:
+echo    [1] Launch Rubrik Recovery Assistant (Rubrik-Restore.bat)
+echo    [2] Exit to Command Prompt (run Rubrik-Restore.bat manually when ready)
+echo.
+set /p "NEXT_ACTION=Select an option [1]: "
+if "%NEXT_ACTION%"=="" set "NEXT_ACTION=1"
+if "%NEXT_ACTION%"=="1" (
+    if exist "%~dp0Rubrik-Restore.bat" (
+        call "%~dp0Rubrik-Restore.bat"
+    ) else if exist "%CD%\Rubrik-Restore.bat" (
+        call "%CD%\Rubrik-Restore.bat"
+    )
+)
+
 endlocal
